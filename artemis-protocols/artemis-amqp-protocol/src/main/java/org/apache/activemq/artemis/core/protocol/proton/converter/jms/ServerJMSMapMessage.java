@@ -22,6 +22,7 @@ import javax.jms.MessageFormatException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
@@ -124,6 +125,14 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
 
    public void setObject(final String name, final Object value) throws JMSException
    {
+      if (value instanceof List)
+      {
+         if (((List)value).size() > 0)
+         {
+            System.out.println("ServerJMSMapMessage.setObject");
+         }
+         return;
+      }
       try
       {
          TypedProperties.setObjectProperty(new SimpleString(name), value, map);

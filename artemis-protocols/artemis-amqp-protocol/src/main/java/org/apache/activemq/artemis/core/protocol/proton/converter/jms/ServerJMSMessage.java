@@ -121,7 +121,7 @@ public class ServerJMSMessage implements Message
    @Override
    public final void setJMSReplyTo(Destination replyTo) throws JMSException
    {
-      MessageUtil.setJMSReplyTo(message, replyTo == null ? null : ((ActiveMQDestination) replyTo).getSimpleAddress());
+      MessageUtil.setJMSReplyTo(message, replyTo == null ? null : new SimpleString(((ServerJMSDestination) replyTo).getName()));
 
    }
 
@@ -155,7 +155,7 @@ public class ServerJMSMessage implements Message
       }
       else
       {
-         message.setAddress(((ActiveMQDestination) destination).getSimpleAddress());
+         message.setAddress(new SimpleString(((ServerJMSDestination) destination).getName()));
       }
 
    }
@@ -389,6 +389,10 @@ public class ServerJMSMessage implements Message
    @Override
    public final void setObjectProperty(String name, Object value) throws JMSException
    {
+      if ("JMS_AMQP_MA_x-opt-qd.trace".equals(name))
+      {
+         return;
+      }
       message.putObjectProperty(name, value);
    }
 

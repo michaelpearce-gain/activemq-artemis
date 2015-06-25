@@ -267,6 +267,7 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
       EncodedMessage encodedMessage = new EncodedMessage(messageFormat, messageEncoded.array(), messageEncoded.arrayOffset(), messageEncoded.writerIndex());
 
       ServerMessage message = manager.getConverter().inbound(encodedMessage);
+      message.putStringProperty("BROKER_PASS_THRU", "ive been routed to broker Artemis" + System.getProperty("QOS"));
       //use the address on the receiver if not null, if null let's hope it was set correctly on the message
       if (address != null)
       {

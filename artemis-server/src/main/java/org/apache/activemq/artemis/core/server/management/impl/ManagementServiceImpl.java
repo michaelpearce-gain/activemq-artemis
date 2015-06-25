@@ -392,7 +392,7 @@ public class ManagementServiceImpl implements ManagementService
    public ServerMessage handleMessage(final ServerMessage message) throws Exception
    {
       // a reply message is sent with the result stored in the message body.
-      ServerMessage reply = new ServerMessageImpl(storageManager.generateID(), 512);
+      ServerMessageImpl reply = new ServerMessageImpl(storageManager.generateID(), 512);
 
       String resourceName = message.getStringProperty(ManagementHelper.HDR_RESOURCE_NAME);
       if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
@@ -464,7 +464,7 @@ public class ManagementServiceImpl implements ManagementService
             }
          }
       }
-
+      reply.setType(org.apache.activemq.artemis.api.core.Message.TEXT_TYPE);
       return reply;
    }
 

@@ -72,6 +72,11 @@
         <artifactId>artemis-ra</artifactId>
         <version>${project.version}</version>
      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-dispatch-integration</artifactId>
+         <version>${project.version}</version>
+      </dependency>
      <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>artemis-spring-integration</artifactId>
@@ -82,6 +87,11 @@
         <artifactId>artemis-vertx-integration</artifactId>
         <version>${project.version}</version>
      </dependency>
+       <dependency>
+          <groupId>org.apache.activemq</groupId>
+          <artifactId>artemis-dispatch-integration</artifactId>
+          <version>${project.version}</version>
+       </dependency>
      <dependency>
         <groupId>org.apache.activemq.rest</groupId>
         <artifactId>artemis-rest</artifactId>

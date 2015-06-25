@@ -302,8 +302,17 @@ public final class ManagementHelper
     */
    public static Object[] retrieveOperationParameters(final Message message) throws Exception
    {
-      SimpleString sstring = message.getBodyBuffer().readNullableSimpleString();
-      String jsonString = (sstring == null) ? null : sstring.toString();
+      SimpleString sstring;
+      if ( message.containsProperty("_AMQ_Body"))
+      {
+         sstring = new SimpleString(message.getStringProperty("_AMQ_Body"));
+      }
+      else
+      {
+         sstring = message.getBodyBuffer().readNullableSimpleString();
+      }
+
+      String jsonString = (sstring == null || sstring.length() == 0) ? null : sstring.toString();
 
       if (jsonString != null)
       {

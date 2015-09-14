@@ -1600,7 +1600,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setJgroupsChannelRefName(jgroupsChannelRefName);
    }
 
-   public ActiveMQConnectionFactory createActiveMQConnectionFactory(final ConnectionFactoryProperties overrideProperties) {
+   public synchronized ActiveMQConnectionFactory createActiveMQConnectionFactory(final ConnectionFactoryProperties overrideProperties) {
       ActiveMQConnectionFactory cf;
       boolean known = false;
 
@@ -1977,5 +1977,12 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
    public SensitiveDataCodec<String> getCodecInstance() {
       return raProperties.getCodecInstance();
+   }
+
+   public synchronized void closeConnectionFactory(ConnectionFactoryProperties properties) {
+      ActiveMQConnectionFactory connectionFactory = knownConnectionFactories.get(properties);
+      if (connectionFactory != null && connectionFactory != defaultActiveMQConnectionFactory) {
+         knownConnectionFactories.remove(properties).close();
+      }
    }
 }

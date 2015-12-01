@@ -107,8 +107,12 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    }
 
    public SequentialFile createSequentialFile(final String fileName) {
-      return new AIOSequentialFile(this, bufferSize, bufferTimeout, journalDir, fileName, writeExecutor);
-   }
+         long time = System.currentTimeMillis();
+         AIOSequentialFile aioSequentialFile = new AIOSequentialFile(this, bufferSize, bufferTimeout, journalDir, fileName, writeExecutor);
+         long now = System.currentTimeMillis();
+         System.out.println("createSequentialFile ************************************************* " + (now - time)/1000);
+         return aioSequentialFile;
+      }
 
    public boolean isSupportsCallbacks() {
       return true;

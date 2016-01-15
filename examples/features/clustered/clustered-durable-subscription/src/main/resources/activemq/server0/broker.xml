@@ -67,6 +67,8 @@ under the License.
       </discovery-groups>
 
       <cluster-connections>
+         <uri address=""/>
+         <uri address="ddd"/>
          <cluster-connection name="my-cluster">
             <address>jms</address>
             <connector-ref>netty-connector</connector-ref>
@@ -76,6 +78,7 @@ under the License.
             <max-hops>1</max-hops>
             <discovery-group-ref discovery-group-name="my-discovery-group"/>
          </cluster-connection>
+         <uri address="ttt"/>
       </cluster-connections>
 
       <!--  other configuration -->

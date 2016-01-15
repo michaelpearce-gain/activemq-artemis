@@ -290,6 +290,31 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
             return (Integer) proxy.invokeOperation("sendMessagesToDeadLetterAddress", filterStr);
          }
 
+         @Override
+         public String sendTextMessage(@Parameter(name = "body") String body) throws Exception {
+            return null;
+         }
+
+         @Override
+         public String sendTextMessageWithProperties(String properties) throws Exception {
+            return null;
+         }
+
+         @Override
+         public String sendTextMessage(@Parameter(name = "headers") Map<String, String> headers, @Parameter(name = "body") String body) throws Exception {
+            return null;
+         }
+
+         @Override
+         public String sendTextMessage(@Parameter(name = "body") String body, @Parameter(name = "user") String user, @Parameter(name = "password") String password) throws Exception {
+            return null;
+         }
+
+         @Override
+         public String sendTextMessage(@Parameter(name = "headers") Map<String, String> headers, @Parameter(name = "body") String body, @Parameter(name = "user") String user, @Parameter(name = "password") String password) throws Exception {
+            return null;
+         }
+
          public void setDeadLetterAddress(final String deadLetterAddress) throws Exception {
             proxy.invokeOperation("setDeadLetterAddress", deadLetterAddress);
          }

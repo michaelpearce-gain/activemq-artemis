@@ -307,6 +307,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return (Integer) proxy.invokeOperation("sendMessagesToDeadLetterAddress", filterStr);
          }
 
+         @Override
+         public String sendTextMessage(Map<String, String> headers, String body, String userID, boolean durable, String user, String password) throws Exception {
+            return null;
+         }
+
          public void setDeadLetterAddress(final String deadLetterAddress) throws Exception {
             proxy.invokeOperation("setDeadLetterAddress", deadLetterAddress);
          }

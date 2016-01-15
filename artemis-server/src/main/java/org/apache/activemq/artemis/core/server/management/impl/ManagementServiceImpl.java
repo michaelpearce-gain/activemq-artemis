@@ -229,7 +229,7 @@ public class ManagementServiceImpl implements ManagementService {
    public synchronized void registerQueue(final Queue queue,
                                           final SimpleString address,
                                           final StorageManager storageManager) throws Exception {
-      QueueControlImpl queueControl = new QueueControlImpl(queue, address.toString(), postOffice, storageManager, addressSettingsRepository);
+      QueueControlImpl queueControl = new QueueControlImpl(queue, address.toString(), postOffice, storageManager, messagingServer.getSecurityStore(), addressSettingsRepository);
       if (messageCounterManager != null) {
          MessageCounter counter = new MessageCounter(queue.getName().toString(), null, queue, false, queue.isDurable(), messageCounterManager.getMaxDayCount());
          queueControl.setMessageCounter(counter);

@@ -173,10 +173,20 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
 
                receivedFirstPacket = true;
             }
+            /*
+            * there is an issue with the proton-j sasl frame handler that it will try and process everything in the buffer.
+            * If the client has pipelined extra data or is sending the open frame before the handshake has occured then
+            * the sasl frame handler will barf. To avoid this we must limit how many bytes we send, 8 is the minimum that
+            * the sasl frame parse needs so it doesn't barf with not enough data.
+            * */
+            boolean inSasl = transport.sasl() != null && !transport.sasl().getState().equals(Sasl.SaslState.PN_SASL_PASS);
 
             if (capacity > 0) {
                ByteBuffer tail = transport.tail();
                int min = Math.min(capacity, buffer.readableBytes());
+               if (inSasl) {
+                  min = Math.min(8, min);
+               }
                tail.limit(min);
                buffer.readBytes(tail);
 

@@ -729,13 +729,15 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
     */
    public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException {
       if (clientWindowSize >= 0) {
+
+         ActiveMQClientLogger.LOGGER.info("flowcontrol was " + creditsToSend + " from now " + (creditsToSend + messageBytes));
          creditsToSend += messageBytes;
 
          if (creditsToSend >= clientWindowSize) {
             if (clientWindowSize == 0 && discountSlowConsumer) {
-               if (isTrace) {
-                  ActiveMQClientLogger.LOGGER.trace("FlowControl::Sending " + creditsToSend + " -1, for slow consumer");
-               }
+               //if (isTrace) {
+               ActiveMQClientLogger.LOGGER.info("FlowControl::Sending " + creditsToSend + " -1, for slow consumer");
+               //}
 
                // sending the credits - 1 initially send to fire the slow consumer, or the slow consumer would be
                // always buffering one after received the first message
@@ -748,9 +750,9 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                }
             }
             else {
-               if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-                  ActiveMQClientLogger.LOGGER.debug("Sending " + messageBytes + " from flow-control");
-               }
+               //if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
+               ActiveMQClientLogger.LOGGER.info("Sending " + creditsToSend + " from flow-control");
+             //  }
 
                final int credits = creditsToSend;
 

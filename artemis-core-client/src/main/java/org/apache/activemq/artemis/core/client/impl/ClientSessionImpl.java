@@ -775,6 +775,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                          int flowControlSize,
                                          boolean isContinues) throws Exception {
       ClientConsumerInternal consumer = getConsumer(consumerID);
+      System.out.println("flowcontrol handle " + flowControlSize + " " + isContinues + " on consumer " + consumer);
 
       if (consumer != null) {
          consumer.handleLargeMessageContinuation(chunk, flowControlSize, isContinues);

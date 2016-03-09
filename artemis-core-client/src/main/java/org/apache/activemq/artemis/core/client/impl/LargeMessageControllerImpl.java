@@ -155,6 +155,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
       synchronized (this) {
          packetAdded = true;
+         System.out.println("%%%%% adding " + flowControlSize + " to " + outStream + " " +  fileCache);
          if (outStream != null) {
             try {
                if (!isContinues) {

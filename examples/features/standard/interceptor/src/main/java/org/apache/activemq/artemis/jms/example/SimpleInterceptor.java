@@ -38,6 +38,16 @@ public class SimpleInterceptor implements Interceptor {
       if (packet instanceof SessionSendMessage) {
          SessionSendMessage realPacket = (SessionSendMessage) packet;
          Message msg = realPacket.getMessage();
+         SimpleString address = msg.getAddress();
+
+         System.out.println("*********************************address = " + address);
+
+         SimpleString newAddress = new SimpleString("jms.queue." + address);
+
+         System.out.println("*********************************new address = " + newAddress);
+
+         msg.setAddress(newAddress);
+
          msg.putStringProperty(new SimpleString("newproperty"), new SimpleString("Hello from interceptor!"));
       }
       // We return true which means "call next interceptor" (if there is one) or target.

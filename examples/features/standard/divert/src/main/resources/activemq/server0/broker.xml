@@ -23,19 +23,7 @@ under the License.
                xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
 
    <jms xmlns="urn:activemq:jms">
-      <!-- Destinations used by the example -->
-
-      <!-- The order queue -->
-      <queue name="orders"/>
-
-      <!-- The queue that prices are forwarded to before being bridged to the New York server -->
-      <queue name="priceForwarding"/>
-
-      <!-- The topic for price updates -->
-      <topic name="priceUpdates"/>
-
-      <!-- The spy topic for snooping on orders -->
-      <topic name="spyTopic"/>
+      <queue name="exampleQueue"/>
    </jms>
 
    <core xmlns="urn:activemq:core">
@@ -48,66 +36,26 @@ under the License.
 
       <paging-directory>./data/paging</paging-directory>
 
-      <!-- Connectors -->
-
-      <connectors>
-         <!-- This connector corresponds to the New York server -->
-         <connector name="newyork-connector">tcp://localhost:61617</connector>
-      </connectors>
-
       <!-- Acceptors -->
 
       <acceptors>
          <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
       </acceptors>
 
-      <!-- Divert configuration -->
-
-      <!-- We need to create a core queue for the JMS queue explicitly because the bridge will be deployed
-      before the JMS queue is deployed, so the first time, it otherwise won't find the queue -->
-      <queues>
-         <queue name="jms.queue.priceForwarding">
-            <address>jms.queue.priceForwarding</address>
-         </queue>
-      </queues>
 
       <diverts>
          <divert name="order-divert">
-            <routing-name>order-divert</routing-name>
-            <address>jms.queue.orders</address>
-            <forwarding-address>jms.topic.spyTopic</forwarding-address>
+            <routing-name>example-divert</routing-name>
+            <address>exampleQueue</address>
+            <forwarding-address>jms.queue.exampleQueue</forwarding-address>
             <exclusive>false</exclusive>
          </divert>
 
-         <divert name="prices-divert">
-            <routing-name>prices-divert</routing-name>
-            <address>jms.topic.priceUpdates</address>
-            <forwarding-address>jms.queue.priceForwarding</forwarding-address>
-            <filter string="office='New York'"/>
-            <transformer-class-name>org.apache.activemq.artemis.jms.example.AddForwardingTimeTransformer
-            </transformer-class-name>
-            <exclusive>true</exclusive>
-         </divert>
       </diverts>
-
-      <!-- Bridge configuration -->
-
-      <bridges>
-         <bridge name="price-forward-bridge">
-            <queue-name>jms.queue.priceForwarding</queue-name>
-            <forwarding-address>jms.topic.newYorkPriceUpdates</forwarding-address>
-            <reconnect-attempts>-1</reconnect-attempts>
-            <static-connectors>
-               <connector-ref>newyork-connector</connector-ref>
-            </static-connectors>
-         </bridge>
-      </bridges>
-
-      <!-- Other config -->
 
       <security-settings>
          <!--security for example -->
-         <security-setting match="jms.#">
+         <security-setting match="#">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>

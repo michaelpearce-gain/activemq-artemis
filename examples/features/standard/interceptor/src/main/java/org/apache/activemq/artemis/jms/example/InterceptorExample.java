@@ -16,8 +16,18 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -34,6 +44,14 @@ public class InterceptorExample {
       Connection connection = null;
       InitialContext initialContext = null;
       try {
+
+         ServerLocator locator = new ServerLocatorImpl(false, new TransportConfiguration(NettyConnectorFactory.class.getName()));
+         ClientSessionFactory factory = locator.createSessionFactory();
+         ClientSession clientSession = factory.createSession();
+         ClientProducer clientProducer = clientSession.createProducer();
+         clientProducer.send(new SimpleString("exampleQueue"), clientSession.createMessage(true));
+         locator.close();
+
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
@@ -49,19 +67,6 @@ public class InterceptorExample {
          // Step 5. Create a JMS Session
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 6. Create a JMS Message Producer
-         MessageProducer producer = session.createProducer(queue);
-
-         // Step 7. Create a Text Message
-         TextMessage message = session.createTextMessage("This is a text message");
-
-         System.out.println("Sending message [" + message.getText() +
-                               "] with String property: " +
-                               message.getStringProperty("newproperty"));
-
-         // Step 8. Send the Message
-         producer.send(message);
-
          // Step 9. Create a JMS Message Consumer
          MessageConsumer messageConsumer = session.createConsumer(queue);
 
@@ -69,11 +74,9 @@ public class InterceptorExample {
          connection.start();
 
          // Step 11. Receive the message
-         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
+         Message messageReceived =  messageConsumer.receive(5000);
 
-         System.out.println("Received message [" + messageReceived.getText() +
-                               "] with String property: " +
-                               messageReceived.getStringProperty("newproperty"));
+         System.out.println("messageReceived = " + messageReceived);
       } finally {
          // Step 12. Be sure to close our JMS resources!
          if (initialContext != null) {

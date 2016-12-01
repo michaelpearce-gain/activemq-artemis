@@ -1261,6 +1261,29 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void diskCapacityRestored();
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222212, value = "Disk Full! Blocking message production on address ''{0}''. Clients will report blocked.", format = Message.Format.MESSAGE_FORMAT)
+   void blockingDiskFull(SimpleString addressName);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222213,
+      value = "There was an issue on the network, server is isolated!",
+      format = Message.Format.MESSAGE_FORMAT)
+   void serverIsolatedOnNetwork();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222214,
+      value = "Destination {1} has an inconsistent and negative address size={0}.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void negativeAddressSize(long size, String destination);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222215,
+      value = "Global Address Size has negative and inconsistent value as {0}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void negativeGlobalAddressSize(long size);
+
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);

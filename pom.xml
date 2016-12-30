@@ -44,6 +44,7 @@
       <module>artemis-junit</module>
       <module>artemis-jms-client</module>
       <module>artemis-jms-server</module>
+      <module>artemis-jms-pool</module>
       <module>artemis-native</module>
       <module>artemis-journal</module>
       <module>artemis-ra</module>

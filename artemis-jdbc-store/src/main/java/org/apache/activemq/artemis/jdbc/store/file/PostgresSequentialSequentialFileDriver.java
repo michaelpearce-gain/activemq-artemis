@@ -20,11 +20,12 @@ import java.nio.ByteBuffer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.activemq.artemis.jdbc.store.drivers.postgres.PostgresSQLProvider;
 import org.postgresql.PGConnection;
 import org.postgresql.largeobject.LargeObject;
 import org.postgresql.largeobject.LargeObjectManager;
 
-public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFactoryDriver {
+public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFactoryDriver<PostgresSQLProvider> {
 
    private static final String POSTGRES_OID_KEY = "POSTGRES_OID_KEY";
 

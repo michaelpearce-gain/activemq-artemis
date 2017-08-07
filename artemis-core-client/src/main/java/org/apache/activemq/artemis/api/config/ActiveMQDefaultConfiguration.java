@@ -437,6 +437,9 @@ public final class ActiveMQDefaultConfiguration {
    // Default large messages table name, used with Database storage type
    private static final String DEFAULT_PAGE_STORE_TABLE_NAME = "PAGE_STORE";
 
+   // Default large messages table name, used with Database storage type
+   private static final String DEFAULT_NODE_MANAGER_TABLE_NAME = "NODE_MANAGER_STORE";
+
    private static final int DEFAULT_JDBC_NETWORK_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(20);
 
    // Default period to wait between connection TTL checks
@@ -1281,5 +1284,9 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int getDefaultQuorumSize() {
       return DEFAULT_QUORUM_SIZE;
+   }
+
+   public static String getDefaultNodeManagerTableName() {
+      return DEFAULT_NODE_MANAGER_TABLE_NAME;
    }
 }

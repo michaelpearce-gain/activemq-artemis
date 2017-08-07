@@ -52,6 +52,8 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    protected PreparedStatement selectFileNamesByExtension;
 
+   protected PreparedStatement lockCreateStatement;
+
    JDBCSequentialFileFactoryDriver() {
       super();
    }
@@ -79,6 +81,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       this.readLargeObject = connection.prepareStatement(sqlProvider.getReadLargeObjectSQL());
       this.appendToLargeObject = connection.prepareStatement(sqlProvider.getAppendToLargeObjectSQL(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
       this.selectFileNamesByExtension = connection.prepareStatement(sqlProvider.getSelectFileNamesByExtensionSQL());
+      this.lockCreateStatement = connection.prepareStatement(sqlProvider.getLockCreateStatementSQL());
    }
 
    public List<String> listFiles(String extension) throws Exception {

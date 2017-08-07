@@ -32,6 +32,8 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    private String pageStoreTableName = ActiveMQDefaultConfiguration.getDefaultPageStoreTableName();
 
+   private String nodeManagerTableName = ActiveMQDefaultConfiguration.getDefaultNodeManagerTableName();
+
    private String jdbcConnectionUrl = ActiveMQDefaultConfiguration.getDefaultDatabaseUrl();
 
    private String jdbcDriverClassName = ActiveMQDefaultConfiguration.getDefaultDriverClassName();
@@ -134,5 +136,9 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    public void setJdbcNetworkTimeout(int jdbcNetworkTimeout) {
       this.jdbcNetworkTimeout = jdbcNetworkTimeout;
+   }
+
+   public String getNodeManagerTableName() {
+      return nodeManagerTableName;
    }
 }

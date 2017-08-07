@@ -57,6 +57,12 @@ public class GenericSQLProvider implements SQLProvider {
 
    private final String countJournalRecordsSQL;
 
+   private final String createLockTableSQL;
+
+   private final String lockCreateStatementSQL;
+
+   private final String lockUpdateStatementSQL;
+
    protected final DatabaseStoreType databaseStoreType;
 
    protected GenericSQLProvider(String tableName, DatabaseStoreType databaseStoreType) {
@@ -102,6 +108,13 @@ public class GenericSQLProvider implements SQLProvider {
       deleteJournalTxRecordsSQL = "DELETE FROM " + tableName + " WHERE txId=?";
 
       countJournalRecordsSQL = "SELECT COUNT(*) FROM " + tableName;
+
+      createLockTableSQL = "CREATE TABLE " + tableName
+                          + "( ID BIGINT NOT NULL, TIME BIGINT, BROKER_NAME VARCHAR(250), PRIMARY KEY (ID))";
+
+      lockCreateStatementSQL = "SELECT * FROM " + tableName + " FOR UPDATE";
+
+      lockUpdateStatementSQL = "UPDATE " + tableName + " SET TIME = ? WHERE ID = 1";
    }
 
    @Override
@@ -118,6 +131,11 @@ public class GenericSQLProvider implements SQLProvider {
    @Override
    public String[] getCreateJournalTableSQL() {
       return createJournalTableSQL;
+   }
+
+   @Override
+   public String getCreateLockTableSQL() {
+      return createLockTableSQL;
    }
 
    @Override
@@ -199,6 +217,18 @@ public class GenericSQLProvider implements SQLProvider {
    @Override
    public String getDropFileTableSQL() {
       return dropFileTableSQL;
+   }
+
+   @Override
+   public String getLockCreateStatementSQL() {
+      return lockCreateStatementSQL;
+   }
+
+
+
+   @Override
+   public String getLockUpdateStatementSQL() {
+      return lockUpdateStatementSQL;
    }
 
    @Override

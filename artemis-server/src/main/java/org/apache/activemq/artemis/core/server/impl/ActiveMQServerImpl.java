@@ -135,6 +135,7 @@ import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.JDBCNodeManager;
 import org.apache.activemq.artemis.core.server.files.FileMoveManager;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
@@ -447,7 +448,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (!configuration.isPersistenceEnabled()) {
          manager = new InVMNodeManager(replicatingBackup);
       } else {
-         manager = new FileLockNodeManager(directory, replicatingBackup, configuration.getJournalLockAcquisitionTimeout());
+         if (configuration.getStoreConfiguration() instanceof DatabaseStorageConfiguration) {
+            manager = new JDBCNodeManager(this, (DatabaseStorageConfiguration) configuration.getStoreConfiguration());
+         }
+         else {
+            manager = new FileLockNodeManager(directory, replicatingBackup, configuration.getJournalLockAcquisitionTimeout());
+         }
       }
       return manager;
    }

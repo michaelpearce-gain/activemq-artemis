@@ -18,8 +18,10 @@ package org.apache.activemq.artemis.jdbc.store.sql;
 
 public interface SQLProvider {
 
+   String getCreateLockTableSQL();
+
    enum DatabaseStoreType {
-      PAGE, MESSAGE_JOURNAL, BINDINGS_JOURNAL, LARGE_MESSAGE
+      PAGE, MESSAGE_JOURNAL, BINDINGS_JOURNAL, LARGE_MESSAGE, NODE_MANAGER
    }
 
    long getMaxBlobSize();
@@ -59,6 +61,10 @@ public interface SQLProvider {
    String getCloneFileRecordByIdSQL();
 
    String getCountJournalRecordsSQL();
+
+   String getLockCreateStatementSQL();
+
+   String getLockUpdateStatementSQL();
 
    boolean closeConnectionOnShutdown();
 

@@ -104,6 +104,39 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    }
 
    @Test
+   public void testTightEncodingEnabled() throws Exception {
+      String connectionUrl1 = getConnectionUrl();
+      connectionUrl1 += "&wireFormat.tightEncodingEnabled=false";
+      ActiveMQConnectionFactory factory1 = new ActiveMQConnectionFactory(connectionUrl1);
+      String connectionUrl2 = getConnectionUrl();
+      connectionUrl2 += "&wireFormat.tightEncodingEnabled=true";
+      ActiveMQConnectionFactory factory2 = new ActiveMQConnectionFactory(connectionUrl2);
+      Connection connection1 = factory1.createConnection();
+      Connection connection2 = factory2.createConnection();
+
+      Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session1.createQueue(queueName);
+      System.out.println("Queue:" + queue);
+      Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session1.createProducer(queue);
+      MessageConsumer consumer = session2.createConsumer(queue);
+      TextMessage msg = session1.createTextMessage("test");
+      producer.send(msg);
+
+      Assert.assertNull(consumer.receive(100));
+      connection2.start();
+
+      TextMessage message = (TextMessage) consumer.receive(5000);
+
+      Assert.assertNotNull(message);
+
+      connection1.close();
+      connection2.close();
+
+      System.err.println("Done!!!");
+   }
+
+   @Test
    public void testTransactionalSimple() throws Exception {
       try (Connection connection = factory.createConnection()) {
 

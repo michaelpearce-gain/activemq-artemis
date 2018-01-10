@@ -25,6 +25,8 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -45,6 +47,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataImporter;
+import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataImporter1_X;
 import org.apache.activemq.artemis.core.persistence.impl.journal.BatchingIDGenerator;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
@@ -1039,5 +1042,53 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       assertTrue(server.getAddressInfo(myAddress).getRoutingTypes().contains(RoutingType.ANYCAST));
       assertTrue(server.getAddressInfo(myAddress).getRoutingTypes().contains(RoutingType.MULTICAST));
+   }
+
+   @Test
+   public void testCompatibility() throws Exception {
+      server = createServer(true);
+      server.start();
+      checkForLongs();
+      locator = createInVMNonHALocator();
+      factory = createSessionFactory(locator);
+      ClientSession session = factory.createSession(false, true, true);
+
+
+      InputStream xmlInputStream = getClass().getClassLoader().getResource("journal-2.xml").openStream();
+      XmlDataImporter1_X xmlDataImporter = new XmlDataImporter1_X();
+      //xmlDataImporter.validate(xmlInputStream);
+      //xmlInputStream.reset();
+      xmlDataImporter.process(xmlInputStream, session);
+     // ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
+      // session.start();
+
+      /*for (int i = 0; i < 5; i++) {
+         ClientMessage msg = consumer.receive(CONSUMER_TIMEOUT);
+         byte[] body = new byte[msg.getBodySize()];
+         msg.getBodyBuffer().readBytes(body);
+         assertTrue(new String(body).contains("Bob the giant pig " + i));
+         assertEquals(msg.getBooleanProperty("myBooleanProperty"), Boolean.TRUE);
+         assertEquals(msg.getByteProperty("myByteProperty"), new Byte("0"));
+         byte[] bytes = msg.getBytesProperty("myBytesProperty");
+         for (int j = 0; j < 5; j++) {
+            assertEquals(j, bytes[j]);
+         }
+         assertEquals(i * 1.6, msg.getDoubleProperty("myDoubleProperty"), 0.000001);
+         assertEquals(i * 2.5F, msg.getFloatProperty("myFloatProperty"), 0.000001);
+         assertEquals(i, msg.getIntProperty("myIntProperty").intValue());
+         assertEquals(Long.MAX_VALUE - i, msg.getLongProperty("myLongProperty").longValue());
+         assertEquals(i, msg.getObjectProperty("myObjectProperty"));
+         assertEquals(true, msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullObjectProperty")));
+         assertEquals(null, msg.getObjectProperty("myNullObjectProperty"));
+         assertEquals(new Integer(i).shortValue(), msg.getShortProperty("myShortProperty").shortValue());
+         assertEquals("myStringPropertyValue_" + i, msg.getStringProperty("myStringProperty"));
+         assertEquals(true, msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullStringProperty")));
+         assertEquals(null, msg.getStringProperty("myNullStringProperty"));
+         assertEquals(international.toString(), msg.getStringProperty("myNonAsciiStringProperty"));
+         assertEquals(special, msg.getStringProperty("mySpecialCharacters"));
+         assertEquals(new SimpleString("mySimpleStringPropertyValue_" + i), msg.getSimpleStringProperty(new SimpleString("mySimpleStringProperty")));
+         assertEquals(true, msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullSimpleStringProperty")));
+         assertEquals(null, msg.getSimpleStringProperty("myNullSimpleStringProperty"));
+      }*/
    }
 }

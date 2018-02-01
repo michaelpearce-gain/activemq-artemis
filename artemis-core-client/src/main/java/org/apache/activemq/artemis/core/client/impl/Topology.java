@@ -369,7 +369,12 @@ public final class Topology {
    }
 
    public synchronized TopologyMemberImpl getMember(final String nodeID) {
-      return topology.get(nodeID);
+      try {
+         return topology.get(nodeID);
+      } catch (Exception e) {
+         e.printStackTrace();
+         return null;
+      }
    }
 
    public synchronized TopologyMemberImpl getMember(final TransportConfiguration configuration) {

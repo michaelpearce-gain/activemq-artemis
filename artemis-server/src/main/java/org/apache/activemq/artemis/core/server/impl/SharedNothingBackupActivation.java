@@ -388,9 +388,12 @@ public final class SharedNothingBackupActivation extends Activation {
 
    @Override
    public void preStorageClose() throws Exception {
+      System.out.println("********************************** stopping replication endpoint");
       if (replicationEndpoint != null) {
          replicationEndpoint.stop();
       }
+
+      System.out.println("********************************** stopped replication endpoint");
    }
 
    @Override

@@ -260,6 +260,8 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
    public boolean checkLive(TransportConfiguration liveTransportConfiguration) {
       try {
          ClusterControl control = clusterController.connectToNode(liveTransportConfiguration);
+
+         ActiveMQServerLogger.LOGGER.info(" ********* I can still connect to live");
          control.close();
          return true;
       } catch (Throwable t) {

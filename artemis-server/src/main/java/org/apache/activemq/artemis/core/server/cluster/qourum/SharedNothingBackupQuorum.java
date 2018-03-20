@@ -214,6 +214,8 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
    public synchronized void failOver(ReplicationLiveIsStoppingMessage.LiveStopping finalMessage) {
       removeListener();
       signal = BACKUP_ACTIVATION.FAIL_OVER;
+
+      ActiveMQServerLogger.LOGGER.info(" ********* received failover message " + finalMessage);
       if (finalMessage == ReplicationLiveIsStoppingMessage.LiveStopping.FAIL_OVER) {
          latch.countDown();
       }
@@ -281,11 +283,14 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
     * @return the voting decision
     */
    private boolean isLiveDown() {
+
+      System.out.println("********************************** islivedown");
       //lets assume live is not down
       Boolean decision = false;
       int voteAttempts = 0;
       int size = quorumSize == -1 ? quorumManager.getMaxClusterSize() : quorumSize;
 
+      ActiveMQServerLogger.LOGGER.info(" ********* voting with quorum size " + size);
       synchronized (voteGuard) {
          while (!decision && voteAttempts++ < voteRetries) {
             // a quick check to see if the live actually is dead
@@ -319,6 +324,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
          }
       }
 
+      System.out.println("********************************** islivedown complete");
       return decision;
    }
 }

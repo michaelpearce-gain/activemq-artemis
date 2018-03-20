@@ -670,9 +670,9 @@ public final class ReplicationManager implements ActiveMQComponent {
     * @return
     */
    public OperationContext sendLiveIsStopping(final LiveStopping finalMessage) {
-      logger.debug("LIVE IS STOPPING?!? message=" + finalMessage + " enabled=" + enabled);
+      logger.info("LIVE IS STOPPING?!? message=" + finalMessage + " enabled=" + enabled);
       if (enabled) {
-         logger.debug("LIVE IS STOPPING?!? message=" + finalMessage + " " + enabled);
+         logger.info("LIVE IS STOPPING?!? message=" + finalMessage + " " + enabled);
          return sendReplicatePacket(new ReplicationLiveIsStoppingMessage(finalMessage));
       }
       return null;

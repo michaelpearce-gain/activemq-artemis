@@ -295,8 +295,8 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
          while (!decision && voteAttempts++ < voteRetries) {
             // a quick check to see if the live actually is dead
             if (quorumManager.checkLive(liveTransportConfiguration)) {
-               //the live is still alive so we best not failover
-               return false;
+               //the live is still alive so we best not failover just yet, lets keep trying as it may be shutting down
+               continue;
             }
             //the live is dead so lets vote for quorum
             QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, targetServerID);

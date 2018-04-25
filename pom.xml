@@ -144,6 +144,8 @@
       <skipConcurrentTests>true</skipConcurrentTests>
       <skipRestTests>true</skipRestTests>
       <skipActiveMQ5Tests>true</skipActiveMQ5Tests>
+      <skipArquillianTests>true</skipArquillianTests>
+      <skipArquillianITTests>true</skipArquillianITTests>
 
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

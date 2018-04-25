@@ -25,7 +25,7 @@ under the License.
    <core xmlns="urn:activemq:core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="urn:activemq:core ">
 
-      <name>0.0.0.0</name>
+      <name>broker</name>
 
       <persistence-enabled>true</persistence-enabled>
 
@@ -48,13 +48,29 @@ under the License.
 
       <journal-min-files>2</journal-min-files>
 
-      <journal-pool-files>-1</journal-pool-files>
+      <journal-pool-files>10</journal-pool-files>
 
-      <journal-buffer-size>10485760</journal-buffer-size>
+      <journal-file-size>10M</journal-file-size>
 
       <!--
-        You can specify the NIC you want to use to verify if the network
-         <network-check-NIC>theNickName</network-check-NIC>
+       This value was determined through a calculation.
+       Your system could perform 1.37 writes per millisecond
+       on the current journal configuration.
+       That translates as a sync write every 728000 nanoseconds.
+
+       Note: If you specify 0 the system will perform writes directly to the disk.
+             We recommend this to be 0 if you are using journalType=MAPPED and ournal-datasync=false.
+      -->
+      <journal-buffer-timeout>728000</journal-buffer-timeout>
+
+
+      <!--
+        When using ASYNCIO, this will determine the writing queue depth for libaio.
+       -->
+      <journal-max-io>1</journal-max-io>
+      <!--
+        You can verify the network health of a particular NIC by specifying the <network-check-NIC> element.
+         <network-check-NIC>theNicName</network-check-NIC>
         -->
 
       <!--
@@ -79,22 +95,21 @@ under the License.
       <!-- <network-check-ping6-command>ping6 -c 1 %2$s</network-check-ping6-command> -->
 
 
-
-      <!--
-       This value was determined through a calculation.
-       Your system could perform 0.15 writes per millisecond
-       on the current journal configuration.
-       That translates as a sync write every 6488000 nanoseconds
-      -->
-      <journal-buffer-timeout>6488000</journal-buffer-timeout>
-
-
       <!-- how often we are looking for how many bytes are being used on the disk in ms -->
       <disk-scan-period>5000</disk-scan-period>
 
       <!-- once the disk hits this limit the system will block, or close the connection in certain protocols
            that won't support flow control. -->
       <max-disk-usage>90</max-disk-usage>
+
+      <!-- should the broker detect dead locks and other issues -->
+      <critical-analyzer>true</critical-analyzer>
+
+      <critical-analyzer-timeout>120000</critical-analyzer-timeout>
+
+      <critical-analyzer-check-period>60000</critical-analyzer-check-period>
+
+      <critical-analyzer-policy>HALT</critical-analyzer-policy>
 
       <!-- the system will enter into page mode once you hit this limit.
            This is an estimate in bytes of how much the messages are using in memory
@@ -105,7 +120,6 @@ under the License.
             <global-max-size>100Mb</global-max-size>
 
       -->
-      <global-max-size>100Mb</global-max-size>
 
       <acceptors>
 
@@ -114,36 +128,36 @@ under the License.
          <!-- amqpLowCredits: The server will send the # credits specified at amqpCredits at this low mark -->
 
          <!-- Acceptor for every supported protocol -->
-         <acceptor name="artemis">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300</acceptor>
+         <acceptor name="artemis">tcp://172.17.0.3:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300</acceptor>
 
          <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
-         <acceptor name="amqp">tcp://0.0.0.0:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300</acceptor>
+         <acceptor name="amqp">tcp://172.17.0.3:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300</acceptor>
 
          <!-- STOMP Acceptor. -->
-         <acceptor name="stomp">tcp://0.0.0.0:61613?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true</acceptor>
+         <acceptor name="stomp">tcp://172.17.0.3:61613?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true</acceptor>
 
          <!-- HornetQ Compatibility Acceptor.  Enables HornetQ Core and STOMP for legacy HornetQ clients. -->
-         <acceptor name="hornetq">tcp://0.0.0.0:5445?protocols=HORNETQ,STOMP;useEpoll=true</acceptor>
+         <acceptor name="hornetq">tcp://172.17.0.3:5445?protocols=HORNETQ,STOMP;useEpoll=true</acceptor>
 
          <!-- MQTT Acceptor -->
-         <acceptor name="mqtt">tcp://0.0.0.0:1883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true</acceptor>
+         <acceptor name="mqtt">tcp://172.17.0.3:1883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true</acceptor>
 
       </acceptors>
 
 
       <security-settings>
          <security-setting match="#">
-            <permission type="createNonDurableQueue" roles="guest"/>
-            <permission type="deleteNonDurableQueue" roles="guest"/>
-            <permission type="createDurableQueue" roles="guest"/>
-            <permission type="deleteDurableQueue" roles="guest"/>
-            <permission type="createAddress" roles="guest"/>
-            <permission type="deleteAddress" roles="guest"/>
-            <permission type="consume" roles="guest"/>
-            <permission type="browse" roles="guest"/>
-            <permission type="send" roles="guest"/>
+            <permission type="createNonDurableQueue" roles="admin"/>
+            <permission type="deleteNonDurableQueue" roles="admin"/>
+            <permission type="createDurableQueue" roles="admin"/>
+            <permission type="deleteDurableQueue" roles="admin"/>
+            <permission type="createAddress" roles="admin"/>
+            <permission type="deleteAddress" roles="admin"/>
+            <permission type="consume" roles="admin"/>
+            <permission type="browse" roles="admin"/>
+            <permission type="send" roles="admin"/>
             <!-- we need this otherwise ./artemis data imp wouldn't work -->
-            <permission type="manage" roles="guest"/>
+            <permission type="manage" roles="admin"/>
          </security-setting>
       </security-settings>
 
@@ -154,9 +168,7 @@ under the License.
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
             <!-- with -1 only the global-max-size is in use for limiting -->
-            <!-- <max-size-bytes>-1</max-size-bytes> -->
-            <max-size-bytes>1M</max-size-bytes>
-            <page-size-bytes>50000</page-size-bytes>
+            <max-size-bytes>-1</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>
             <auto-create-queues>true</auto-create-queues>
@@ -170,8 +182,7 @@ under the License.
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
             <!-- with -1 only the global-max-size is in use for limiting -->
-            <!-- <max-size-bytes>-1</max-size-bytes> -->
-            <page-size-bytes>50000</page-size-bytes>
+            <max-size-bytes>-1</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>
             <auto-create-queues>true</auto-create-queues>
@@ -184,12 +195,12 @@ under the License.
       <addresses>
          <address name="DLQ">
             <anycast>
-               <queue name="DLQ" />
+               <queue name="DLQ"/>
             </anycast>
          </address>
          <address name="ExpiryQueue">
             <anycast>
-               <queue name="ExpiryQueue" />
+               <queue name="ExpiryQueue"/>
             </anycast>
          </address>
 

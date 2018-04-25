@@ -641,7 +641,7 @@ public final class ReplicationManager implements ActiveMQComponent {
          }
          inSync = false;
 
-         logger.trace("sendSynchronizationDone finished");
+         logger.info("sendSynchronizationDone finished");
       }
    }
 

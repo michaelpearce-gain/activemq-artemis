@@ -26,67 +26,80 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
-import org.apache.qpid.jms.JmsConnectionFactory;
+import org.apache.activemq.artemis.tests.smoke.categories.SingleNode;
+import org.apache.activemq.artemis.tests.smoke.common.SingleNodeTestBase;
+import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
 
-public class TestSimpleExpire extends SmokeTestBase {
-
-   public static final String SERVER_NAME_0 = "expire";
+@RunWith(Arquillian.class)
+@Category(SingleNode.class)
+public class TestSimpleExpire extends SingleNodeTestBase {
 
    @Before
-   public void before() throws Exception {
-      cleanupData(SERVER_NAME_0);
+   @Override
+   public void before() {
       disableCheckThread();
-      startServer(SERVER_NAME_0, 0, 30000);
+      super.before();
    }
 
    @Test
+   @RunAsClient
    public void testSendExpire() throws Exception {
-      ConnectionFactory factory = new JmsConnectionFactory("amqp://localhost:61616");
-      Connection connection = factory.createConnection();
-      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      ConnectionFactory factory = createConnectionFactory(LIVE, PROTOCOL.AMQP, false);
+      Connection connection = null;
+      try {
+         connection = factory.createConnection();
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 
-      Queue queue = session.createQueue("q0");
-      MessageProducer producer = session.createProducer(queue);
-      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+         Queue queue = session.createQueue("q0");
+         MessageProducer producer = session.createProducer(queue);
+         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-      producer.setTimeToLive(1000);
-      for (int i = 0; i < 20000; i++) {
-         producer.send(session.createTextMessage("expired"));
-         if (i % 5000 == 0) {
-            session.commit();
-            System.out.println("Sent " + i + " + messages");
+         producer.setTimeToLive(1000);
+         for (int i = 0; i < 20000; i++) {
+            producer.send(session.createTextMessage("expired"));
+            if (i % 5000 == 0) {
+               session.commit();
+               System.out.println("Sent " + i + " + messages");
+            }
+
          }
 
+         session.commit();
+
+         Thread.sleep(5000);
+         producer.setTimeToLive(0);
+         for (int i = 0; i < 500; i++) {
+            producer.send(session.createTextMessage("ok"));
+
+         }
+         session.commit();
+
+         MessageConsumer consumer = session.createConsumer(queue);
+         connection.start();
+
+
+         for (int i = 0; i < 500; i++) {
+            TextMessage txt = (TextMessage) consumer.receive(10000);
+            Assert.assertNotNull(txt);
+            Assert.assertEquals("ok", txt.getText());
+         }
+
+         session.commit();
+      } catch (Exception e) {
+         if (connection != null) {
+            connection.close();
+         }
       }
-
-      session.commit();
-
-      Thread.sleep(5000);
-      producer.setTimeToLive(0);
-      for (int i = 0; i < 500; i++) {
-         producer.send(session.createTextMessage("ok"));
-
-      }
-      session.commit();
-
-      MessageConsumer consumer = session.createConsumer(queue);
-      connection.start();
-
-
-      for (int i = 0; i < 500; i++) {
-         TextMessage txt = (TextMessage) consumer.receive(10000);
-         Assert.assertNotNull(txt);
-         Assert.assertEquals("ok", txt.getText());
-      }
-
-      session.commit();
-
-
-
    }
 
+   @Override
+   public String getLiveBrokerConfig() {
+      return "/servers/expire/broker.xml";
+   }
 }

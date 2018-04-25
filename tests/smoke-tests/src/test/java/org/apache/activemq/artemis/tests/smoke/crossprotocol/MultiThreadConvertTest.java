@@ -26,7 +26,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -34,56 +33,44 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.tests.smoke.categories.SingleNode;
+import org.apache.activemq.artemis.tests.smoke.common.SingleNodeTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
+import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MultiThreadConvertTest extends SmokeTestBase {
-
-   private static final String SERVER_NAME_0 = "standard";
+@RunWith(Arquillian.class)
+@Category(SingleNode.class)
+public class MultiThreadConvertTest extends SingleNodeTestBase {
 
    private static final Logger LOG = LoggerFactory.getLogger(MultiThreadConvertTest.class);
 
    @Before
-   public void before() throws Exception {
-      cleanupData(SERVER_NAME_0);
+   @Override
+   public void before()  {
       disableCheckThread();
-      startServer(SERVER_NAME_0, 0, 30000);
-   }
-
-   protected TransportConfiguration addAcceptorConfiguration(ActiveMQServer server, int port) {
-      HashMap<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.PORT_PROP_NAME, String.valueOf(port));
-      params.put(TransportConstants.PROTOCOLS_PROP_NAME, "AMQP");
-      HashMap<String, Object> amqpParams = new HashMap<>();
-
-      return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, "netty-amqp-acceptor", amqpParams);
+      super.before();
    }
 
    public String getTopicName() {
       return "test-topic-1";
    }
 
-   @Override
-   @After
-   public void tearDown() throws Exception {
-      super.tearDown();
-   }
-
    @Test(timeout = 60000)
+   @RunAsClient
    public void testSendLotsOfDurableMessagesOnTopicWithManySubscribersPersistent() throws Exception {
       doTestSendLotsOfDurableMessagesOnTopicWithManySubscribers(DeliveryMode.PERSISTENT);
    }
 
    @Test(timeout = 60000)
+   @RunAsClient
    public void testSendLotsOfDurableMessagesOnTopicWithManySubscribersNonPersistent() throws Exception {
       doTestSendLotsOfDurableMessagesOnTopicWithManySubscribers(DeliveryMode.NON_PERSISTENT);
    }
@@ -94,13 +81,12 @@ public class MultiThreadConvertTest extends SmokeTestBase {
       final int SUBSCRIBER_COUNT = 4;
       final int DELIVERY_MODE = durability;
 
-      JmsConnectionFactory amqpFactory = new JmsConnectionFactory("amqp://127.0.0.1:5672");
-      ActiveMQConnectionFactory coreFactory = new ActiveMQConnectionFactory("tcp://127.0.0.1:61616");
+      JmsConnectionFactory amqpFactory = (JmsConnectionFactory) createConnectionFactory(LIVE, PROTOCOL.AMQP, false);//new JmsConnectionFactory("amqp://127.0.0.1:5672");
 
       Connection amqpConnection = amqpFactory.createConnection();
       final ExecutorService executor = Executors.newFixedThreadPool(SUBSCRIBER_COUNT);
 
-      try {
+      try (ActiveMQConnectionFactory coreFactory = (ActiveMQConnectionFactory) createConnectionFactory(LIVE, PROTOCOL.CORE, false)) {
          final CountDownLatch subscribed = new CountDownLatch(SUBSCRIBER_COUNT);
          final CountDownLatch done = new CountDownLatch(MSG_COUNT * SUBSCRIBER_COUNT);
          final AtomicBoolean error = new AtomicBoolean(false);
@@ -163,7 +149,7 @@ public class MultiThreadConvertTest extends SmokeTestBase {
          }
 
          executor.shutdown();
-         coreFactory.close();
+
       }
    }
 }

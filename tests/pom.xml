@@ -110,6 +110,15 @@
          </properties>
       </profile>
       <profile>
+         <id>arquillian-tests</id>
+         <modules>
+            <module>arquillian</module>
+         </modules>
+         <properties>
+            <skipArquillianTests>false</skipArquillianTests>
+         </properties>
+      </profile>
+      <profile>
          <id>release</id>
          <modules>
             <module>activemq5-unit-tests</module>
@@ -133,5 +142,6 @@
       <module>performance-tests</module>
       <module>artemis-test-support</module>
       <module>smoke-tests</module>
+      <module>arquillian</module>
    </modules>
 </project>

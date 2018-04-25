@@ -28,26 +28,25 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.arquillian.BrokerFuture;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
-import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.tests.smoke.categories.Replicated2Node;
+import org.apache.activemq.artemis.tests.smoke.common.Replicated2NodeTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
+import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
 
-public class ReplicationFlowControlTest extends SmokeTestBase {
-
-
-   public static final String SERVER_NAME_0 = "replicated-static0";
-   public static final String SERVER_NAME_1 = "replicated-static1";
+@RunWith(Arquillian.class)
+@Category(Replicated2Node.class)
+public class ReplicationFlowControlTest extends Replicated2NodeTestBase {
 
    ArrayList<Consumer> consumers = new ArrayList<>();
-   private static Process server0;
-
-   private static Process server1;
 
    static final int NUM_MESSAGES = 50_000;
    static final int START_CONSUMERS = 10_000;
@@ -59,23 +58,23 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
    static AtomicInteger totalConsumed = new AtomicInteger(0);
 
 
-
+   @Override
    @Before
    public void before() throws Exception {
-      cleanupData(SERVER_NAME_0);
-      cleanupData(SERVER_NAME_1);
       disableCheckThread();
+      super.before();
    }
 
-   @After
    @Override
-   public void after() throws Exception {
-      super.after();
-      cleanupData(SERVER_NAME_0);
-      cleanupData(SERVER_NAME_1);
+   protected void startBrokers() throws InterruptedException {
+      controller.create(LIVE, getLiveBrokerFile(getLiveBrokerConfig()));
+      BrokerFuture live1 = controller.start(LIVE);
+      live1.awaitBrokerStart(60000);
+      controller.create(REPLICA, getBackupBrokerFile(getBackupBrokerConfig()));
    }
 
    @Test
+   @RunAsClient
    public void testPageWhileSynchronizingReplica() throws Exception {
       internalTest(false);
    }
@@ -93,9 +92,8 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
       Connection connection = null;
 
       try {
-         server0 = startServer(SERVER_NAME_0, 0, 30000);
 
-         ConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
+         ConnectionFactory connectionFactory = createConnectionFactory(LIVE, PROTOCOL.CORE, false);
 
          connection = connectionFactory.createConnection();
 
@@ -124,7 +122,7 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
             if (KILL_SERVER >= 0 && i == KILL_SERVER) {
                session.commit();
                System.out.println("Killing server");
-               ServerUtil.killServer(server0);
+               controller.kill(LIVE);
                Thread.sleep(2000);
                connection.close();
                connection = connectionFactory.createConnection();
@@ -139,7 +137,7 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
 
             if (i == START_SERVER) {
                System.out.println("Starting extra server");
-               server1 = startServer(SERVER_NAME_1, 0, 30000);
+               controller.start(REPLICA);
             }
 
          }
@@ -181,6 +179,21 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
          consumer.start();
          consumers.add(consumer);
       }
+   }
+
+   @Override
+   public String getLiveBrokerConfig() {
+      return null;
+   }
+
+   @Override
+   public String getBackupBrokerConfig() {
+      return null;
+   }
+
+   @Override
+   public PROTOCOL getProtocol() {
+      return PROTOCOL.CORE;
    }
 
    static class Consumer extends Thread {

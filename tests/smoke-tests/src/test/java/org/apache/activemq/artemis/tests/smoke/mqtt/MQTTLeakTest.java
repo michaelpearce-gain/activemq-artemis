@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
-import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
-import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.tests.smoke.categories.SingleNode;
+import org.apache.activemq.artemis.tests.smoke.common.SingleNodeTestBase;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -29,42 +29,29 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.junit.After;
+import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
 
-public class MQTTLeakTest extends SmokeTestBase {
-
-   public static final String SERVER_NAME_0 = "mqtt";
-
-   private static Process server0;
+@RunWith(Arquillian.class)
+@Category(SingleNode.class)
+public class MQTTLeakTest extends SingleNodeTestBase {
 
    @Before
-   public void before() throws Exception {
-      cleanupData(SERVER_NAME_0);
+   @Override
+   public void before() {
+      super.before();
       disableCheckThread();
    }
 
-   @After
-   @Override
-   public void after() throws Exception {
-      super.after();
-      cleanupData(SERVER_NAME_0);
-   }
-
    @Test
+   @RunAsClient
    public void testMQTTLeak() throws Throwable {
-
-      try {
-         server0 = startServer(SERVER_NAME_0, 0, 30000);
-         MQTTRunner.run();
-      } finally {
-
-         ServerUtil.killServer(server0);
-      }
+      MQTTRunner.run();
    }
-
-
 
    private static class MQTTRunner implements MqttCallback {
 

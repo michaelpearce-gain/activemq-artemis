@@ -192,6 +192,12 @@ var ARTEMIS = (function(ARTEMIS) {
             $scope.filter.values.operation = $scope.filter.operationOptions[0].id;
             $scope.filter.values.value = artemisQueue.queue.queue;
             artemisQueue.queue = null;
+        } else {
+            $scope.filter.values.field = sessionStorage.getItem("queuesSearchField");
+            ARTEMIS.log.info("foo=" + $scope.filter.values.field);
+            $scope.filter.values.field.name = sessionStorage.getItem("queuesSearchField");
+            $scope.filter.values.operation = sessionStorage.getItem("queuesSearchOperation");
+            $scope.filter.values.value = sessionStorage.getItem("queuesSearchValue");
         }
 
         artemisSession.session = null;
@@ -254,15 +260,29 @@ var ARTEMIS = (function(ARTEMIS) {
         	$scope.filter.values.sortColumn = $scope.sortOptions.fields[0];
             $scope.filter.values.sortBy = $scope.sortOptions.directions[0];
 	        $scope.filter.values.sortOrder = $scope.sortOptions.directions[0];
+        	sessionStorage.setItem("queuesSearchField", $scope.filter.values.field);
+        	ARTEMIS.log.info("queuesSearchField:" + sessionStorage.getItem("queuesSearchField"));
+        	sessionStorage.setItem("queuesSearchOperation", $scope.filter.values.operation);
+            ARTEMIS.log.info("queuesSearchOperation:" + sessionStorage.getItem("queuesSearchOperation"));
+            sessionStorage.setItem("queuesSearchValue", $scope.filter.values.value);
+            ARTEMIS.log.info("queuesSearchValue:" + sessionStorage.getItem("queuesSearchValue"));
+
             var mbean = getBrokerMBean(jolokia);
             if (mbean.includes("undefined")) {
                 onBadMBean();
             } else if (mbean) {
                 var filter = JSON.stringify($scope.filter.values);
-                console.log("Filter string: " + filter);
+                ARTEMIS.log.info("Filter string: " + filter);
                 jolokia.request({ type: 'exec', mbean: mbean, operation: method, arguments: [filter, $scope.pagingOptions.currentPage, $scope.pagingOptions.pageSize] }, onSuccess(populateTable, { error: onError }));
             }
         };
+
+        $scope.isFieldSelected = function (fieldName) {
+            ARTEMIS.log.info("fieldName=" + fieldName);
+            ARTEMIS.log.info("fieldName2=" + sessionStorage.getItem("queuesSearchField"));
+            return fieldName == sessionStorage.getItem("queuesSearchField");
+        };
+
         function onError() {
             Core.notification("error", "Could not retrieve " + objectType + " list from Artemis.");
         }
@@ -305,6 +325,7 @@ var ARTEMIS = (function(ARTEMIS) {
             ARTEMIS.log.info("broker=" + mbean);
             return mbean;
         };
+
         $scope.refresh();
     };
     return ARTEMIS;

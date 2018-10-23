@@ -20,6 +20,8 @@ import javax.jms.MessageListener;
 import javax.resource.ResourceException;
 import javax.resource.spi.endpoint.MessageEndpoint;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
@@ -330,7 +332,16 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       } catch (Throwable e) {
          ActiveMQRALogger.LOGGER.errorDeliveringMessage(e);
          // we need to call before/afterDelivery as a pair
-         if (beforeDelivery) {
+         // we also need to call after delivery if an exception is thrown during beforeDelivery and tx state hs not been rolled back
+         int status = Status.STATUS_NO_TRANSACTION;
+         if (useXA && tm != null) {
+            try {
+               status = tm.getStatus();
+            } catch (SystemException e1) {
+               //not sure we can do much more here
+            }
+         }
+         if (beforeDelivery || status != Status.STATUS_NO_TRANSACTION ) {
             if (useXA && tm != null) {
                // This is the job for the container,
                // however if the container throws an exception because of some other errors,

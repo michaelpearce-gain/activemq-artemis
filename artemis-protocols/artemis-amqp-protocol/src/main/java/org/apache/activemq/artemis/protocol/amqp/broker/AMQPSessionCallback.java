@@ -361,9 +361,9 @@ public class AMQPSessionCallback implements SessionCallback {
       return addressQueryResult;
    }
 
-   public void closeSender(final Object brokerConsumer) throws Exception {
+   public void closeSender(final Object brokerConsumer, boolean failed) throws Exception {
       final ServerConsumer consumer = ((ServerConsumer) brokerConsumer);
-      consumer.close(false);
+      consumer.close(failed);
       consumer.getQueue().recheckRefCount(serverSession.getSessionContext());
    }
 

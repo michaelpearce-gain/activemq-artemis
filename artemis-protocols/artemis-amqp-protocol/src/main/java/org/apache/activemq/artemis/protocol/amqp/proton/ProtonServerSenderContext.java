@@ -538,7 +538,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       connection.runLater(() -> {
          sender.close();
          try {
-            sessionSPI.closeSender(brokerConsumer);
+            sessionSPI.closeSender(brokerConsumer, false);
          } catch (Exception e) {
             log.warn(e.getMessage(), e);
          }
@@ -554,11 +554,23 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
       try {
          closed = true;
-         sessionSPI.closeSender(brokerConsumer);
+         boolean failed = false;
+         Source source = (Source) sender.getSource();
+         if (!remoteLinkClose) {
+            /*
+            * So this doesnt work, we need a way of knowing whether or not n messages had actually been reived as this could always be true
+            * */
+            if (source != null && source.getDefaultOutcome() != null && source.getDefaultOutcome() instanceof Modified) {
+               Modified modified = (Modified) source.getDefaultOutcome();
+               failed = modified.getDeliveryFailed() != null ? modified.getDeliveryFailed():false;
+            }
+         }
+         sessionSPI.closeSender(brokerConsumer, failed);
+
          // if this is a link close rather than a connection close or detach, we need to delete
          // any durable resources for say pub subs
          if (remoteLinkClose) {
-            Source source = (Source) sender.getSource();
+
             if (source != null && source.getAddress() != null && multicast) {
                SimpleString queueName = SimpleString.toSimpleString(source.getAddress());
                QueueQueryResult result = sessionSPI.queueQuery(queueName, routingTypeToUse, false);

@@ -745,6 +745,44 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test(timeout = 60000)
+   public void testAckwithSessionClose() throws Exception{
+
+      Connection connection = createConnection();
+
+      try {
+         long time = System.currentTimeMillis();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session.createQueue(getQueueName());
+         MessageProducer producer = session.createProducer(queue);
+         producer.send(session.createMessage());
+         connection.close();
+         Queue queueView = getProxyToQueue(getQueueName());
+
+         Wait.assertEquals(1, queueView::getMessageCount);
+
+         // Now create a new connection and receive and acknowledge
+         for (int i = 0; i < 10; i++) {
+            connection = createConnection();
+            session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+            MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
+            Message message = consumer.receive();
+            connection.close();
+            if (i > 0) {
+               Assert.assertTrue(message.getJMSRedelivered());
+            }
+         }
+         connection = createConnection();
+         session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+         MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
+         Message message = consumer.receiveNoWait();
+         Assert.assertNull(message);
+         connection.close();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
    public void testClientAckMessages() throws Exception {
       final int numMessages = 10;
 
@@ -823,7 +861,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             queue = session.createQueue(name);
             MessageConsumer c = session.createConsumer(queue);
-            Assert.assertNotNull(c.receive(1000));
+            Assert.assertNotNull(i + "", c.receive(10000));
             session.close();
          }
 

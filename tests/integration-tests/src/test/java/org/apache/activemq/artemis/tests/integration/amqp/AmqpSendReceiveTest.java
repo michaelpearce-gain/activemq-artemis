@@ -20,6 +20,8 @@ import static org.apache.activemq.transport.amqp.AmqpSupport.contains;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -112,10 +114,45 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertEquals(1, queueView.getMessageCount());
 
       receiver.flow(1);
-      assertNotNull(receiver.receive(5, TimeUnit.SECONDS));
+      AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull(receive);
       receiver.close();
 
       assertEquals(1, queueView.getMessageCount());
+
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testQueueReceiverReadMessageTracing() throws Exception {
+      int messageCount = 100;
+      for (int i = 0; i < messageCount; i++) {
+         HashMap<Symbol, Object> messageAnnotations = new HashMap<>();
+         messageAnnotations.put(Symbol.getSymbol("uber-trace-id"), "messageid:" + i);
+         sendMessages(getQueueName(), 1, null, false, Collections.emptyMap(), messageAnnotations);
+      }
+
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
+
+      Queue queueView = getProxyToQueue(getQueueName());
+      assertEquals(100, queueView.getMessageCount());
+
+      receiver.flow(messageCount);
+
+      for (int i = 0; i < messageCount; i++) {
+         AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
+         assertNotNull(receive);
+         receive.accept();
+      }
+      receiver.close();
+
+      Thread.sleep(6000);
+      assertEquals(0, queueView.getMessageCount());
 
       connection.close();
    }

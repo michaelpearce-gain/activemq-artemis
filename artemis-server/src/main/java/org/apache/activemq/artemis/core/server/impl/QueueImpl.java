@@ -924,6 +924,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public void addHead(final MessageReference ref, boolean scheduling) {
       enterCritical(CRITICAL_PATH_ADD_HEAD);
+      server.getmessageTracer().enqueued(ref.getMessage(), this.name.toString());
       synchronized (this) {
          try {
             if (ringSize != -1) {
@@ -2626,6 +2627,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       messageReferences.addTail(ref, getPriority(ref));
       pendingMetrics.incrementMetrics(ref);
       enforceRing(false);
+      server.getmessageTracer().enqueued(ref.getMessage(), this.getName().toString());
    }
 
    /**
@@ -3409,6 +3411,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          return false;
       }
       try {
+         server.getmessageTracer().enqueued(ref.getMessage(), this.getName().toString());
          return deliver(ref);
       } finally {
          deliverLock.unlock();
@@ -3515,6 +3518,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private void proceedDeliver(Consumer consumer, MessageReference reference) {
       try {
          consumer.proceedDeliver(reference);
+         server.getmessageTracer().dequeued(reference.getMessage());
+         server.getmessageTracer().delivered(reference.getMessage(), consumer.sequentialID());
       } catch (Throwable t) {
          errorProcessing(consumer, t, reference);
       } finally {
@@ -3609,6 +3614,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       if (ref.isPaged()) {
          // nothing to be done
+         server.getmessageTracer().acked(ref.getMessage());
          return;
       }
 
@@ -3657,6 +3663,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
          }
       }
+      server.getmessageTracer().acked(ref.getMessage());
    }
 
    void postRollback(final LinkedList<MessageReference> refs) {

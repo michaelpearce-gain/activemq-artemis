@@ -328,6 +328,15 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
                                RoutingType routingType,
                                boolean durable,
                                Map<String, Object> applicationProperties) throws Exception {
+      sendMessages(destinationName, count, routingType, durable, applicationProperties, Collections.emptyMap());
+   }
+
+   protected void sendMessages(String destinationName,
+                               int count,
+                               RoutingType routingType,
+                               boolean durable,
+                               Map<String, Object> applicationProperties,
+                               Map<Symbol, Object> messageAnnotations) throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       try {
@@ -338,6 +347,9 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
             AmqpMessage message = new AmqpMessage();
             for (Map.Entry<String, Object> entry : applicationProperties.entrySet()) {
                message.setApplicationProperty(entry.getKey(), entry.getValue());
+            }
+            for (Map.Entry<Symbol, Object> entry : messageAnnotations.entrySet()) {
+               message.setMessageAnnotation(entry.getKey().toString(), entry.getValue());
             }
             message.setMessageId("MessageID:" + i);
             message.setDurable(durable);

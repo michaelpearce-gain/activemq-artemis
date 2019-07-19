@@ -254,6 +254,8 @@ public class ThreadLeakCheckRule extends TestWatcher {
          return true;
       } else if (threadName.contains("threadDeathWatcher")) {
          return true;
+      } else if (threadName.contains("jaeger")) {
+         return true;
       } else if (threadName.contains("netty-threads")) {
          // This is ok as we use EventLoopGroup.shutdownGracefully() which will shutdown things with a bit of delay
          // if the EventLoop's are still busy.

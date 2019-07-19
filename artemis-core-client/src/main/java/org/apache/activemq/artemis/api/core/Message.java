@@ -25,6 +25,7 @@ import java.util.function.Predicate;
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
+import org.apache.activemq.artemis.tracing.TracingContext;
 
 /**
  * A Message is a routable instance that has a payload.
@@ -727,4 +728,12 @@ public interface Message {
     */
    long getPersistentSize() throws ActiveMQException;
 
+   /*
+   * returns the tracing id from the message
+   * */
+   Map<String, String> getTraceID();
+
+   void setTracingContext(TracingContext tracingContext);
+
+   TracingContext getTracingContext();
 }

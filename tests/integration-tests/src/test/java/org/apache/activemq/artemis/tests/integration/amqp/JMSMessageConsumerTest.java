@@ -783,7 +783,6 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
             String text = ((TextMessage) msg).getText();
             // System.out.println("text = " + text);
             Assert.assertEquals(text, "msg:" + i);
-            msg.acknowledge();
          }
 
          consumer.close();

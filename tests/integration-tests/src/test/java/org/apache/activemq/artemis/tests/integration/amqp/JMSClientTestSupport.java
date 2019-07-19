@@ -157,6 +157,7 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
    private Connection createConnection(URI remoteURI, String username, String password, String clientId, boolean start) throws JMSException {
       JmsConnectionFactory factory = new JmsConnectionFactory(remoteURI);
 
+      configureConnectionFactory(factory);
       Connection connection = trackJMSConnection(factory.createConnection(username, password));
 
       connection.setExceptionListener(new ExceptionListener() {
@@ -176,6 +177,10 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
 
       return connection;
    }
+
+   protected void configureConnectionFactory(JmsConnectionFactory factory) {
+   }
+
 
 
    protected String getBrokerCoreJMSConnectionString() {

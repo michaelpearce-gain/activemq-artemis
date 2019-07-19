@@ -21,6 +21,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,6 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -36,6 +38,7 @@ import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
+import org.apache.activemq.artemis.tracing.MessageTracer;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
 public class ServiceRegistryImpl implements ServiceRegistry {
@@ -45,6 +48,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    private ExecutorService ioExecutorService;
 
    private ScheduledExecutorService scheduledExecutorService;
+
+   private MessageTracer messageTracer;
 
    /* We are using a List rather than HashMap here as ActiveMQ Artemis allows multiple instances of the same class to be added
    * to the interceptor list
@@ -229,6 +234,14 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       acceptorFactories.put(name, acceptorFactory);
    }
 
+   @Override
+   public MessageTracer getMessageTracer(String messagingTracingClass) {
+      if (messageTracer == null) {
+         messageTracer = instantiateMessageTracer(messagingTracingClass);
+      }
+      return messageTracer;
+   }
+
    @SuppressWarnings("TypeParameterUnusedInFormals")
    public <T> T loadClass(final String className) {
       return AccessController.doPrivileged(new PrivilegedAction<T>() {
@@ -251,6 +264,28 @@ public class ServiceRegistryImpl implements ServiceRegistry {
          }
       }
       return transformer;
+   }
+
+   private MessageTracer instantiateMessageTracer(final String messageTracerClassName) {
+      MessageTracer messageTracer = null;
+      if (messageTracerClassName != null) {
+         String[] parts = messageTracerClassName.split(";");
+         messageTracer = loadClass(parts[0]);
+         if (parts.length > 1) {
+            Map<String, String> props = new HashMap<>();
+
+            for (int i = 1; i < parts.length; i++) {
+               String[] keyVal = parts[i].split("=");
+               if (keyVal.length != 2) {
+                  ActiveMQClientLogger.LOGGER.debug("ignoring keys");
+                  continue;
+               }
+               props.put(keyVal[0], keyVal[1]);
+            }
+            messageTracer.init(props);
+         }
+      }
+      return messageTracer;
    }
 
    private void instantiateInterceptors(List<String> classNames, List<BaseInterceptor> interceptors) {

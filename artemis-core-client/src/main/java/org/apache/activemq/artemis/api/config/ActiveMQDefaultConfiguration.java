@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
+import org.apache.activemq.artemis.tracing.NOOPTracer;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.jboss.logging.Logger;
 
@@ -484,6 +485,8 @@ public final class ActiveMQDefaultConfiguration {
    public static final long DEFAULT_GLOBAL_MAX_SIZE = Runtime.getRuntime().maxMemory() / 2;
 
    public static final int DEFAULT_MAX_DISK_USAGE;
+
+   private static final String DEFAULT_MESSAGE_TRACING_CLASS = NOOPTracer.class.getName();
 
    static {
       int maxDisk;
@@ -1626,6 +1629,10 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static long getDefaultFederationCallFailoverTimeout() {
       return DEFAULT_FEDERATION_CALL_FAILOVER_TIMEOUT;
+   }
+
+   public static String getDefaultMessageTracingClass() {
+      return DEFAULT_MESSAGE_TRACING_CLASS;
    }
 
 }

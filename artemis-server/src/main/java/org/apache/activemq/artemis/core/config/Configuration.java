@@ -1281,4 +1281,7 @@ public interface Configuration {
     */
    List<FederationConfiguration> getFederationConfigurations();
 
+   String getMessagingTracingClass();
+
+   void setMessageTracingClass(String messageTracingClass);
 }

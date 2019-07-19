@@ -3801,6 +3801,17 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       tcclInvoke(ActiveMQServerControlImpl.class.getClassLoader(), () -> internalresetUser(username, password, roles));
    }
+
+   @Override
+   public void enableMessageTracing() throws Exception {
+      server.enableMessageTracing();
+   }
+
+   @Override
+   public void disableMessageTracing() throws Exception {
+
+   }
+
    private void internalresetUser(String username, String password, String roles) throws Exception {
       PropertiesLoginModuleConfigurator config = getPropertiesLoginModuleConfigurator();
       config.updateUser(username, password, roles == null ? null : roles.split(","));

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.message.impl;
 
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
@@ -29,6 +30,7 @@ import org.apache.activemq.artemis.api.core.RefCountMessageListener;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.BodyEncoder;
 import org.apache.activemq.artemis.core.persistence.Persister;
+import org.apache.activemq.artemis.tracing.TracingContext;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
 @Deprecated
@@ -698,6 +700,21 @@ public class MessageInternalImpl implements MessageInternal {
    @Override
    public long getPersistentSize() throws ActiveMQException {
       return message.getPersistentSize();
+   }
+
+   @Override
+   public Map<String, String> getTraceID() {
+      return null;
+   }
+
+   @Override
+   public void setTracingContext(TracingContext tracingContext) {
+
+   }
+
+   @Override
+   public TracingContext getTracingContext() {
+      return null;
    }
 
 }

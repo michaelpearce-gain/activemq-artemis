@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQConsumerContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tracing.TracingContext;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -821,6 +822,21 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       @Override
       public long getPersistentSize() throws ActiveMQException {
          return 0;
+      }
+
+      @Override
+      public Map<String, String> getTraceID() {
+         return null;
+      }
+
+      @Override
+      public void setTracingContext(TracingContext tracingContext) {
+
+      }
+
+      @Override
+      public TracingContext getTracingContext() {
+         return null;
       }
    }
 }

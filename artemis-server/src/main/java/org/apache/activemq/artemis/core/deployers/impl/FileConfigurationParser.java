@@ -273,6 +273,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String DEFAULT_RING_SIZE = "default-ring-size";
 
+   private static final String MESSAGING_TRACING_CLASS = "message-tracing-class";
+
    private static final String RETROACTIVE_MESSAGE_COUNT = "retroactive-message-count";
 
 
@@ -407,7 +409,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setAmqpUseCoreSubscriptionNaming(getBoolean(e, AMQP_USE_CORE_SUBSCRIPTION_NAMING, config.isAmqpUseCoreSubscriptionNaming()));
 
-
+      config.setMessageTracingClass(getString(e, MESSAGING_TRACING_CLASS, config.getMessagingTracingClass(), Validators.NO_CHECK));
       // parsing cluster password
       String passwordText = getString(e, "cluster-password", null, Validators.NO_CHECK);
 

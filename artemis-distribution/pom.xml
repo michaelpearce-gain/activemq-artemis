@@ -144,6 +144,10 @@
       </dependency>
       <!-- dependencies -->
       <dependency>
+         <groupId>io.jaegertracing</groupId>
+            <artifactId>jaeger-client</artifactId>
+      </dependency>
+      <dependency>
           <groupId>org.jboss.logmanager</groupId>
           <artifactId>jboss-logmanager</artifactId>
       </dependency>

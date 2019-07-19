@@ -1654,5 +1654,18 @@ public interface ActiveMQServerControl {
    void resetUser(@Parameter(name = "username", desc = "Name of the user") String username,
                   @Parameter(name = "password", desc = "User's password") String password,
                   @Parameter(name = "roles", desc = "User's role (comma separated)") String roles) throws Exception;
+
+   /**
+    * Enables message tracing for this server.
+    */
+   @Operation(desc = "Enable message tracing", impact = MBeanOperationInfo.ACTION)
+   void enableMessageTracing() throws Exception;
+
+   /**
+    * Disables message tracing for this server.
+    */
+   @Operation(desc = "Disable message tracing", impact = MBeanOperationInfo.ACTION)
+   void disableMessageTracing() throws Exception;
+
 }
 

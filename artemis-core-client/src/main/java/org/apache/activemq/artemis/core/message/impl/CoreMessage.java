@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.message.impl;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Map;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
@@ -40,6 +41,7 @@ import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBu
 import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.tracing.TracingContext;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -1204,5 +1206,20 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    @Override
    public long getPersistentSize() throws ActiveMQException {
       return getEncodeSize();
+   }
+
+   @Override
+   public Map<String, String> getTraceID() {
+      return null;
+   }
+
+   @Override
+   public void setTracingContext(TracingContext tracingContext) {
+
+   }
+
+   @Override
+   public TracingContext getTracingContext() {
+      return null;
    }
 }

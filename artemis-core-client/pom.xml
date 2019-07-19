@@ -77,6 +77,23 @@
          <scope>test</scope>
       </dependency>
       <dependency>
+         <groupId>io.jaegertracing</groupId>
+         <artifactId>jaeger-client</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.jaegertracing</groupId>
+         <artifactId>jaeger-client</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.opentracing</groupId>
+         <artifactId>opentracing-api</artifactId>
+      </dependency>
+
+      <dependency>
+         <groupId>io.opentracing</groupId>
+         <artifactId>opentracing-util</artifactId>
+      </dependency>
+      <dependency>
          <groupId>org.hamcrest</groupId>
          <artifactId>hamcrest</artifactId>
          <version>${hamcrest.version}</version>

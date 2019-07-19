@@ -74,6 +74,7 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.tracing.MessageTracer;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 
@@ -755,4 +756,8 @@ public interface ActiveMQServer extends ServiceComponent {
    void removeAddressInfo(SimpleString address, SecurityAuth auth, boolean force) throws Exception;
 
    String getInternalNamingPrefix();
+
+   void enableMessageTracing();
+
+   MessageTracer getmessageTracer();
 }

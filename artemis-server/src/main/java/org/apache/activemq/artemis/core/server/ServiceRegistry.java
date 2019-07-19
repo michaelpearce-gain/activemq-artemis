@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
+import org.apache.activemq.artemis.tracing.MessageTracer;
 
 /**
  * A holder for common services leveraged by the broker.
@@ -130,4 +131,6 @@ public interface ServiceRegistry {
    AcceptorFactory getAcceptorFactory(String name, String className);
 
    void addAcceptorFactory(String name, AcceptorFactory acceptorFactory);
+
+   MessageTracer getMessageTracer(String messagingTracingClass);
 }

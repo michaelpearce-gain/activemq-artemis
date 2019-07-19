@@ -1442,7 +1442,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             if (message.isLargeMessage()) {
                confirmLargeMessageSend(tx, message);
             }
-
+            server.getmessageTracer().paged(message);
             // We need to kick delivery so the Queues may check for the cursors case they are empty
             schedulePageDelivery(tx, entry);
             continue;

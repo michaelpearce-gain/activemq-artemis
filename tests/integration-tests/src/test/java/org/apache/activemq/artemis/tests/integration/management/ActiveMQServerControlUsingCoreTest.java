@@ -386,6 +386,16 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void enableMessageTracing() throws Exception {
+
+         }
+
+         @Override
+         public void disableMessageTracing() throws Exception {
+
+         }
+
+         @Override
          public String getUptime() {
             return null;
          }

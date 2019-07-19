@@ -71,6 +71,11 @@
             <include>org.apache.activemq.rest:artemis-rest</include>
             <include>org.apache.qpid:qpid-jms-client</include>
             <include>io.micrometer:micrometer-core</include>
+            <include>io.jaegertracing:jaeger-client</include>
+            <include>io.jaegertracing:jaeger-core</include>
+            <include>io.jaegertracing:jaeger-thrift</include>
+            <include>io.opentracing:opentracing-api</include>
+            <include>io.opentracing:opentracing-util</include>
 
             <!-- dependencies -->
             <include>org.apache.geronimo.specs:geronimo-jms_2.0_spec</include>

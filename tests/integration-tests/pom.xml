@@ -290,6 +290,19 @@
          <scope>test</scope>
       </dependency>
 
+      <dependency>
+         <groupId>io.opentracing</groupId>
+         <artifactId>opentracing-api</artifactId>
+      </dependency>
+
+      <dependency>
+         <groupId>io.opentracing</groupId>
+         <artifactId>opentracing-util</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.opentracing</groupId>
+         <artifactId>opentracing-mock</artifactId>
+      </dependency>
       <!-- DB Test Deps -->
       <dependency>
          <groupId>org.apache.derby</groupId>

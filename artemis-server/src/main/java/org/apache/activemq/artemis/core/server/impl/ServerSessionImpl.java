@@ -1691,6 +1691,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (AuditLogger.isMessageEnabled()) {
          AuditLogger.coreSendMessage(this, getUsername(), tx, messageParameter, direct, noAutoCreateQueue, routingContext);
       }
+      server.getmessageTracer().accepted(messageParameter);
 
       final Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, storageManager);
 

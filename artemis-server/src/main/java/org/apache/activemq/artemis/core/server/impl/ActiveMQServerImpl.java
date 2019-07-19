@@ -182,6 +182,7 @@ import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.impl.ResourceManagerImpl;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.logs.AuditLogger;
+import org.apache.activemq.artemis.tracing.MessageTracer;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
@@ -350,6 +351,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private final ConcurrentMap<String, AtomicInteger> connectedClientIds = new ConcurrentHashMap();
 
    private volatile FederationManager federationManager;
+
+   private volatile MessageTracer messageTracer;
 
    private final ActiveMQComponent networkCheckMonitor = new ActiveMQComponent() {
       @Override
@@ -568,6 +571,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          haPolicy = ConfigurationUtils.getHAPolicy(configuration.getHAPolicyConfiguration(), this);
       }
 
+      messageTracer = serviceRegistry.getMessageTracer(configuration.getMessagingTracingClass());
+
       activationLatch.setCount(1);
 
       logger.debug("Starting server " + this);
@@ -768,6 +773,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.unableToAcquireLock(e);
       }
+   }
+
+   @Override
+   public void enableMessageTracing() {
+      messageTracer.setEnabled(true);
+   }
+
+   @Override
+   public MessageTracer getmessageTracer() {
+      return messageTracer;
    }
 
    @Override

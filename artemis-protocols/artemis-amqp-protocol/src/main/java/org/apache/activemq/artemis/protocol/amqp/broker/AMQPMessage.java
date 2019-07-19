@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
+import org.apache.activemq.artemis.tracing.TracingContext;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageIdHelper;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.converter.AmqpCoreConverter;
@@ -87,6 +88,8 @@ public class AMQPMessage extends RefCountMessage {
 
    private static final int VALUE_NOT_PRESENT = -1;
 
+   private static Symbol TRACE_ID = Symbol.getSymbol("x-opt-qpid-tracestate");
+
    // Buffer and state for the data backing this message.
    private ReadableBuffer data;
    private boolean messageDataScanned;
@@ -130,6 +133,7 @@ public class AMQPMessage extends RefCountMessage {
 
    // These are properties set at the broker level and carried only internally by broker storage.
    private volatile TypedProperties extraProperties;
+   private TracingContext tracingContext;
 
    /**
     * Creates a new {@link AMQPMessage} instance from binary encoded message data.
@@ -768,6 +772,25 @@ public class AMQPMessage extends RefCountMessage {
    @Override
    public long getPersistentSize() throws ActiveMQException {
       return getEncodeSize();
+   }
+
+   @Override
+   public Map<String, String> getTraceID() {
+      if (messageAnnotations != null) {
+         Map<Symbol, Object> maMap = messageAnnotations == null ? null : messageAnnotations.getValue();
+         return (Map<String, String>) maMap.get(TRACE_ID);
+      }
+      return null;
+   }
+
+   @Override
+   public void setTracingContext(TracingContext tracingContext) {
+      this.tracingContext = tracingContext;
+   }
+
+   @Override
+   public TracingContext getTracingContext() {
+      return tracingContext;
    }
 
    @Override

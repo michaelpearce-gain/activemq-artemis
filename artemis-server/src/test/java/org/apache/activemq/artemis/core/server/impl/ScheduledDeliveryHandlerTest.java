@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.tracing.TracingContext;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
@@ -784,6 +785,21 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public long getPersistentSize() throws ActiveMQException {
          return 0;
+      }
+
+      @Override
+      public Map<String, String> getTraceID() {
+         return null;
+      }
+
+      @Override
+      public void setTracingContext(TracingContext tracingContext) {
+
+      }
+
+      @Override
+      public TracingContext getTracingContext() {
+         return null;
       }
    }
 

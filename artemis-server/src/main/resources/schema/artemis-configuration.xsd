@@ -404,6 +404,8 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="message-tracing-class" type="xsd:string" default="org.apache.activemq.artemis.tracing.NOOPTracer" maxOccurs="1" minOccurs="0"/>
+
          <xsd:element name="connectors" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

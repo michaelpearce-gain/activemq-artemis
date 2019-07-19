@@ -347,6 +347,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
     */
    private File artemisInstance;
 
+   private String messageTracingClass = ActiveMQDefaultConfiguration.getDefaultMessageTracingClass();
+
    // Public -------------------------------------------------------------------------
 
    @Override
@@ -1594,6 +1596,16 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public List<FederationConfiguration> getFederationConfigurations() {
       return federationConfigurations;
+   }
+
+   @Override
+   public String getMessagingTracingClass() {
+      return messageTracingClass;
+   }
+
+   @Override
+   public void setMessageTracingClass(String messageTracingClass) {
+      this.messageTracingClass = messageTracingClass;
    }
 
    @Override

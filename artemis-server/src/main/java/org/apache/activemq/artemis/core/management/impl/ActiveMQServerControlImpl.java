@@ -1118,8 +1118,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              long autoDeleteMessageCount,
                              boolean autoCreateAddress,
                              long ringSize) throws Exception {
-      if (AuditLogger.isEnabled()) {
-         AuditLogger.createQueue(this.server, address, routingType, name, filterStr, durable,
+      if (AuditLogger.isSecurityLoggingEnabled()) {
+         AuditLogger.createQueue(this.server, null, address, routingType, name, filterStr, durable,
                   maxConsumers, purgeOnNoConsumers, exclusive, groupBuckets, lastValue,
                   lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete,
                   autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, ringSize);

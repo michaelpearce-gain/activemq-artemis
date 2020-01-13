@@ -22,6 +22,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -44,9 +45,12 @@ import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.logging.Logger;
+
+import javax.servlet.DispatcherType;
 
 public class WebServerComponent implements ExternalComponent {
 
@@ -276,10 +280,34 @@ public class WebServerComponent implements ExternalComponent {
 
    private WebAppContext deployWar(String url, String warFile, Path warDirectory) throws IOException {
       WebAppContext webapp = new WebAppContext();
+
+/*
+      webapp.setEventListeners(new EventListener[]{new ContextHandler.ContextScopeListener() {
+         @Override
+         public void enterScope(ContextHandler.Context context, Request request, Object o) {
+            if (request != null) {
+               String remoteHost = request.getRemoteHost();
+               if (remoteHost != null) {
+                  Subject subject = Subject.getSubject(AccessController.getContext());
+                  if (subject != null) {
+                     subject.getPrincipals().add(new WebPrincipal(remoteHost));
+                  }
+               }
+            }
+         }
+
+         @Override
+         public void exitScope(ContextHandler.Context context, Request request) {
+            System.out.println("WebServerComponent.exitScope");
+         }
+      }});
+*/
       if (url.startsWith("/")) {
          webapp.setContextPath(url);
+         webapp.addFilter(new FilterHolder(AuthenticationFilter.class), "*", EnumSet.of(DispatcherType.REQUEST));
       } else {
          webapp.setContextPath("/" + url);
+         webapp.addFilter(new FilterHolder(AuthenticationFilter.class), "*", EnumSet.of(DispatcherType.REQUEST));
       }
 
       webapp.setWar(warDirectory.resolve(warFile).toString());

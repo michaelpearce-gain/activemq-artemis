@@ -46,10 +46,15 @@ import java.util.Arrays;
 public interface AuditLogger extends BasicLogger {
 
    AuditLogger LOGGER = Logger.getMessageLogger(AuditLogger.class, "org.apache.activemq.audit.base");
+   AuditLogger SECURITY_LOGGER = Logger.getMessageLogger(AuditLogger.class, "org.apache.activemq.audit.security");
    AuditLogger MESSAGE_LOGGER = Logger.getMessageLogger(AuditLogger.class, "org.apache.activemq.audit.message");
 
    static boolean isEnabled() {
       return LOGGER.isEnabled(Logger.Level.INFO);
+   }
+
+   static boolean isSecurityLoggingEnabled() {
+      return SECURITY_LOGGER.isEnabled(Logger.Level.INFO);
    }
 
    static boolean isMessageEnabled() {
@@ -617,7 +622,7 @@ public interface AuditLogger extends BasicLogger {
    void deployQueue(String user, Object source, Object... args);
 
    static void createQueue(Object source, String user, Object... args) {
-      LOGGER.createQueue(user == null ? getCaller() : user, source, arrayToString(args));
+      SECURITY_LOGGER.createQueue(user == null ? getCaller() : user, source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
